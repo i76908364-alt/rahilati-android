@@ -1,0 +1,32 @@
+name: Build رحلتي APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: تحميل الملفات
+        uses: actions/checkout@v4
+
+      - name: فك ملف المشروع
+        run: |
+          unzip -o rahilati-android-v9-project.zip -d project
+          find project -name gradlew -type f | head
+
+      - name: إعطاء صلاحية Gradle
+        run: |
+          chmod +x $(find project -name gradlew -type f | head -1)
+
+      - name: بناء APK
+        run: |
+          cd $(dirname $(find project -name gradlew -type f | head -1))
+          ./gradlew assembleDebug
+
+      - name: رفع APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rahilati-apk
+          path: "**/build/outputs/apk/**/*.apk"
